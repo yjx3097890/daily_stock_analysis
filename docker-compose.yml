@@ -1,0 +1,4 @@
+# 便捷入口：在仓库根目录执行 `docker compose up -d` 即可。
+# 完整定义见 docker/docker-compose.yml 与 docker/Dockerfile。
+include:
+  - path: docker/docker-compose.yml

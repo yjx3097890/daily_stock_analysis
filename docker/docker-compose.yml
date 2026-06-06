@@ -1,14 +1,19 @@
 # ===================================
 # A股自选股智能分析系统 - Docker Compose
 # ===================================
-# 
-# 使用方式:
-#   定时模式: docker-compose -f ./docker/docker-compose.yml up -d
-#   FastAPI模式: docker-compose -f ./docker/docker-compose.yml up -d server
-#   同时启动: docker-compose -f ./docker/docker-compose.yml up -d analyzer server
+#
+# 前置：cp .env.example .env 并填入 API Key 等配置
+#
+# 使用方式（任选其一）:
+#   根目录: docker compose up -d
+#   或指定: docker compose -f ./docker/docker-compose.yml up -d
+#
+# 服务:
+#   Web/API:  docker compose up -d server      → http://localhost:8000
+#   定时分析: docker compose up -d analyzer
+#   全部启动: docker compose up -d
 
 name: daily-stock-analysis
-version: '3.8'
 
 x-common: &common
   build:
@@ -61,7 +66,7 @@ services:
     <<: *common
     container_name: stock-analyzer
 
-  # FastAPI 模式
+  # FastAPI 模式（WebUI + API）
   server:
     <<: *common
     container_name: stock-server
@@ -69,3 +74,9 @@ services:
     # 若使用 network_mode: host，则以下 ports 映射无效，端口由 command 中的 --port 指定
     ports:
       - "${API_PORT:-8000}:${API_PORT:-8000}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${API_PORT:-8000}/api/health || curl -fsS http://127.0.0.1:${API_PORT:-8000}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
