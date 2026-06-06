@@ -43,8 +43,15 @@ RUN groupadd -g 1000 dsa && \
 # 复制依赖文件
 COPY requirements.txt .
 
+# 国内 PyPI 镜像（构建时可 --build-arg PIP_INDEX_URL=... 覆盖）
+ARG PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+
 # 安装 Python 依赖
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir \
+    -i "${PIP_INDEX_URL}" \
+    --timeout 120 \
+    --retries 5 \
+    -r requirements.txt
 
 # 复制应用代码
 COPY *.py ./
