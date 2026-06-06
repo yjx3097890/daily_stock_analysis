@@ -31,8 +31,9 @@ def test_dockerfile_bundles_default_alphasift_adapter() -> None:
     assert "git \\" in dockerfile
     assert "git+https://github.com/ZhuLinsen/alphasift.git@1a0ed8c99b3615c0cb1076e6029827ffc6de2344#egg=alphasift" in requirements
     assert "PIP_INDEX_URL" in dockerfile
+    assert "ALPHASIFT_INSTALL_SPEC" in dockerfile
+    assert "requirements.pypi.txt" in dockerfile
     assert "pip install --no-cache-dir" in dockerfile
-    assert "-r requirements.txt" in dockerfile
     assert "import alphasift.dsa_adapter" in dockerfile
 
 
