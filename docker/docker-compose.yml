@@ -21,10 +21,8 @@ x-common: &common
     dockerfile: docker/Dockerfile
     args:
       PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
-      # PyPI 镜像只加速 PyPI 包；alphasift 仍从 GitHub 拉取。构建失败时取消注释并改端口：
-      # HTTP_PROXY: http://host.docker.internal:7890
-      # HTTPS_PROXY: http://host.docker.internal:7890
-      # 或使用 GitHub 镜像源（示例，可用性因网络而异）：
+      # GitHub 不通且无法本地 build 时，可改用官方镜像：image: ghcr.io/zhulinsen/daily_stock_analysis:latest
+      # 或换 AlphaSift 镜像源（示例）：
       # ALPHASIFT_INSTALL_SPEC: git+https://gitclone.com/github.com/ZhuLinsen/alphasift.git@1a0ed8c99b3615c0cb1076e6029827ffc6de2344
   restart: unless-stopped
 
@@ -50,10 +48,6 @@ x-common: &common
     # Web/API service bind address (must be 0.0.0.0 inside container)
     - WEBUI_HOST=0.0.0.0
     # API_PORT 从 .env 文件读取，无需在此硬编码
-
-    # 代理设置（如果需要）
-    # - http_proxy=http://host.docker.internal:10809
-    # - https_proxy=http://host.docker.internal:10809
   logging:
     driver: "json-file"
     options:

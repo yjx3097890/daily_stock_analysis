@@ -45,16 +45,8 @@ COPY requirements.txt .
 
 # 国内 PyPI 镜像（构建时可 --build-arg PIP_INDEX_URL=... 覆盖）
 ARG PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
-# 构建阶段 HTTP/HTTPS 代理（GitHub git clone 用；Mac 可用 host.docker.internal:端口）
-ARG HTTP_PROXY
-ARG HTTPS_PROXY
-# AlphaSift 安装源（GitHub 不通时可改为镜像，见 docker-compose.yml 注释）
+# AlphaSift 安装源（GitHub 不通时可 --build-arg ALPHASIFT_INSTALL_SPEC=... 换镜像地址）
 ARG ALPHASIFT_INSTALL_SPEC=git+https://github.com/ZhuLinsen/alphasift.git@1a0ed8c99b3615c0cb1076e6029827ffc6de2344
-
-ENV HTTP_PROXY=${HTTP_PROXY} \
-    HTTPS_PROXY=${HTTPS_PROXY} \
-    http_proxy=${HTTP_PROXY} \
-    https_proxy=${HTTPS_PROXY}
 
 # 1) PyPI 包（排除 requirements.txt 中的 git+ 行）
 RUN grep -vE '^[[:space:]]*(git\+|#)' requirements.txt | sed '/^[[:space:]]*$/d' > requirements.pypi.txt \
@@ -64,12 +56,8 @@ RUN grep -vE '^[[:space:]]*(git\+|#)' requirements.txt | sed '/^[[:space:]]*$/d'
         --retries 5 \
         -r requirements.pypi.txt
 
-# 2) AlphaSift（git 依赖，需能访问 GitHub 或配置 HTTPS_PROXY / ALPHASIFT_INSTALL_SPEC）
-RUN if [ -n "${HTTPS_PROXY}" ]; then \
-        git config --global http.proxy "${HTTPS_PROXY}"; \
-        git config --global https.proxy "${HTTPS_PROXY}"; \
-    fi \
-    && pip install --no-cache-dir \
+# 2) AlphaSift（git 依赖；无法访问 GitHub 时请换 ALPHASIFT_INSTALL_SPEC 或直接使用官方预构建镜像）
+RUN pip install --no-cache-dir \
         -i "${PIP_INDEX_URL}" \
         --timeout 120 \
         --retries 5 \
